@@ -1,4 +1,4 @@
-name: Android CI
+name: Kiro - Release CI
 
 on:
   release:
@@ -30,13 +30,13 @@ jobs:
         with:
           path: ./artifacts
 
-      - name: Organize Artifacts
+      - name: Organize Kiro artifacts
         run: |
           mkdir -p ./apks
           
           find ./artifacts -name "*.apk" -type f -exec cp {} ./apks/ \;
           
-          echo "Found $(ls ./apks/ | wc -l) APK file(s)"
+          echo "Found $(ls ./apks/ | wc -l) Kiro APK file(s)"
 
       - name: Upload To Release
         uses: softprops/action-gh-release@v3
