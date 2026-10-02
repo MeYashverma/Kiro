@@ -145,7 +145,7 @@
             android:exported="false">
             <intent-filter>
                 <!-- Internal component id, mirrors the upstream Java namespace. Not user visible. -->
-                <action android:name="com.movtery.zalithlauncher.filemanager.EVENT_SERVICE" />
+                <action android:name="io.github.meyashverma.kiro.filemanager.EVENT_SERVICE" />
             </intent-filter>
         </service>
 

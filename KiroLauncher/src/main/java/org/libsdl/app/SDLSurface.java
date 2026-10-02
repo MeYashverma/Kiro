@@ -31,7 +31,7 @@ import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 
-import com.movtery.zalithlauncher.game.sdl.SdlBridge;
+import io.github.meyashverma.kiro.game.sdl.SdlBridge;
 
 
 /**

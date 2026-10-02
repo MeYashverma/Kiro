@@ -68,8 +68,9 @@ cd Kiro
 
 產物位於 `KiroLauncher/build/outputs/apk/`。
 
-發行版使用 `KiroLauncher/kiro_launcher.jks` 簽署，請以環境變數
-`STORE_PASSWORD`、`KEY_PASSWORD` 提供密碼。選用設定（環境變數或
+發行版使用倉庫內的 PKCS12 金鑰庫 `KiroLauncher/kiro_launcher.p12`（別名 `kiro`）簽署，
+除錯版使用 `kiro_launcher_debug.p12`（別名 `kiro-debug`）；密碼可用環境變數
+`STORE_PASSWORD`、`KEY_PASSWORD` 覆寫，未設定時回退到 `KiroLauncher/gradle.properties` 的預設值。選用設定（環境變數或
 `KiroLauncher/gradle.properties`）：`OAUTH_CLIENT_ID`、`CURSEFORGE_API_KEY`、
 `url_update_manifest`（應用內更新來源，留空即停用更新檢查）。
 

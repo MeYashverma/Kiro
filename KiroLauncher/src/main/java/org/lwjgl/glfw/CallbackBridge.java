@@ -1,7 +1,7 @@
 package org.lwjgl.glfw;
 
-import static com.movtery.zalithlauncher.bridge.ZLBridgeStatesKt.CURSOR_DISABLED;
-import static com.movtery.zalithlauncher.bridge.ZLBridgeStatesKt.CURSOR_ENABLED;
+import static io.github.meyashverma.kiro.bridge.KiroBridgeStatesKt.CURSOR_DISABLED;
+import static io.github.meyashverma.kiro.bridge.KiroBridgeStatesKt.CURSOR_ENABLED;
 
 import android.content.ClipData;
 import android.content.ClipDescription;
@@ -18,17 +18,17 @@ import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
 
 import com.movtery.inputmap.keycodes.LwjglGlfwKeycode;
-import com.movtery.zalithlauncher.BuildKeys;
-import com.movtery.zalithlauncher.bridge.CursorShape;
-import com.movtery.zalithlauncher.bridge.LoggerBridge;
-import com.movtery.zalithlauncher.bridge.NativeLibraryLoader;
-import com.movtery.zalithlauncher.bridge.ZLBridgeStates;
-import com.movtery.zalithlauncher.bridge.ZLNativeInvoker;
-import com.movtery.zalithlauncher.context.ContextsKt;
-import com.movtery.zalithlauncher.game.input.EfficientAndroidLWJGLKeycode;
-import com.movtery.zalithlauncher.game.sdl.DirectGamepadEnableHandler;
-import com.movtery.zalithlauncher.game.sdl.SdlBridge;
-import com.movtery.zalithlauncher.setting.AllSettings;
+import io.github.meyashverma.kiro.BuildKeys;
+import io.github.meyashverma.kiro.bridge.CursorShape;
+import io.github.meyashverma.kiro.bridge.LoggerBridge;
+import io.github.meyashverma.kiro.bridge.NativeLibraryLoader;
+import io.github.meyashverma.kiro.bridge.KiroBridgeStates;
+import io.github.meyashverma.kiro.bridge.KiroNativeInvoker;
+import io.github.meyashverma.kiro.context.ContextsKt;
+import io.github.meyashverma.kiro.game.input.EfficientAndroidLWJGLKeycode;
+import io.github.meyashverma.kiro.game.sdl.DirectGamepadEnableHandler;
+import io.github.meyashverma.kiro.game.sdl.SdlBridge;
+import io.github.meyashverma.kiro.setting.AllSettings;
 
 import org.libsdl.app.SDLActivity;
 import org.libsdl.app.SDLSurface;
@@ -57,10 +57,10 @@ public class CallbackBridge {
     private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
     private static volatile boolean isGrabbing = false;
     private static final Consumer<Boolean> grabListener = isGrabbing ->
-            ZLBridgeStates.changeCursorMode(isGrabbing ? CURSOR_DISABLED : CURSOR_ENABLED);
+            KiroBridgeStates.changeCursorMode(isGrabbing ? CURSOR_DISABLED : CURSOR_ENABLED);
 
     private static int cursorShape = GLFW_ARROW_CURSOR;
-    private static final Consumer<CursorShape> cursorShapeListener = ZLBridgeStates::changeCursorShape;
+    private static final Consumer<CursorShape> cursorShapeListener = KiroBridgeStates::changeCursorShape;
 
     private static void postFrameCallbackDelayed(Choreographer.FrameCallback callback, long delayMillis) {
         MAIN_HANDLER.post(() -> Choreographer.getInstance().postFrameCallbackDelayed(callback, delayMillis));
@@ -363,7 +363,7 @@ public class CallbackBridge {
                 }
                 break;
             case CLIPBOARD_OPEN:
-                ZLNativeInvoker.openLink(copy);
+                KiroNativeInvoker.openLink(copy);
                 break;
         }
         return result;

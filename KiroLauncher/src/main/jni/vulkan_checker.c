@@ -40,10 +40,10 @@ static void vulkan_log(JNIEnv *env, const char *level, const char *fmt, ...) {
 #define LOG_E(...) vulkan_log(env, "ERROR", __VA_ARGS__)
 
 /* apiVersion 的 patch 字段宽 12 位；较新 Vulkan 头文件中名为 VK_MAX_PATCH_VERSION */
-#define ZL_MAX_PATCH_VERSION 4095
+#define KIRO_MAX_PATCH_VERSION 4095
 
 JNIEXPORT void JNICALL
-Java_com_movtery_zalithlauncher_utils_device_VulkanChecker_nativeSetLogCallback(
+Java_io_github_meyashverma_kiro_utils_device_VulkanChecker_nativeSetLogCallback(
         JNIEnv *env,
         jclass clazz,
         jobject callback
@@ -69,7 +69,7 @@ Java_com_movtery_zalithlauncher_utils_device_VulkanChecker_nativeSetLogCallback(
 void *loadTurnipVulkan(const char *driver_path, const char *native_dir, const char *cache_dir);
 
 JNIEXPORT jobject JNICALL
-Java_com_movtery_zalithlauncher_utils_device_VulkanChecker_nativeCheckVulkan(
+Java_io_github_meyashverma_kiro_utils_device_VulkanChecker_nativeCheckVulkan(
         JNIEnv *env,
         jclass clazz,
         jstring jDriverPath,
@@ -164,7 +164,7 @@ Java_com_movtery_zalithlauncher_utils_device_VulkanChecker_nativeCheckVulkan(
             .apiVersion = VK_MAKE_VERSION(
                     VK_API_VERSION_MAJOR(instanceApiVersion),
                     VK_API_VERSION_MINOR(instanceApiVersion),
-                    ZL_MAX_PATCH_VERSION)
+                    KIRO_MAX_PATCH_VERSION)
     };
     VkInstanceCreateInfo createInfo = {
             .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
@@ -416,7 +416,7 @@ Java_com_movtery_zalithlauncher_utils_device_VulkanChecker_nativeCheckVulkan(
     PUT_FEAT("vertexAttributeInstanceRateDivisor", vertexAttributeInstanceRateDivisor);
 #undef PUT_FEAT
 
-    jclass capClass = (*env)->FindClass(env, "com/movtery/zalithlauncher/utils/device/VulkanCapabilities");
+    jclass capClass = (*env)->FindClass(env, "io/github/meyashverma/kiro/utils/device/VulkanCapabilities");
     jmethodID capInit = (*env)->GetMethodID(env, capClass, "<init>", "(IIILjava/util/List;Ljava/util/Map;)V");
 
     jint major = (jint) VK_API_VERSION_MAJOR(deviceApiVersion);

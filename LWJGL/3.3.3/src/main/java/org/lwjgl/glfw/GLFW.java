@@ -4,7 +4,7 @@
  */
 package org.lwjgl.glfw;
 
-import com.movtery.zalithlauncher.CursorRegistry;
+import io.github.meyashverma.kiro.CursorRegistry;
 
 import android.util.*;
 

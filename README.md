@@ -76,8 +76,9 @@ cd Kiro
 
 生成的安装包位于 `KiroLauncher/build/outputs/apk/`。
 
-发布版构建需要签名密钥：请将密钥文件放到 `KiroLauncher/kiro_launcher.jks`，
-并通过环境变量 `STORE_PASSWORD`、`KEY_PASSWORD` 提供口令。
+发布版使用仓库内的 PKCS12 密钥库 `KiroLauncher/kiro_launcher.p12`（别名 `kiro`）签名，
+调试版使用 `kiro_launcher_debug.p12`（别名 `kiro-debug`）；口令可通过环境变量
+`STORE_PASSWORD`、`KEY_PASSWORD` 覆盖，未设置时回退到 `KiroLauncher/gradle.properties` 中的默认值。
 
 可选配置（均通过环境变量或 `KiroLauncher/gradle.properties` 提供）：
 `OAUTH_CLIENT_ID`（微软登录）、`CURSEFORGE_API_KEY`（CurseForge 检索）、

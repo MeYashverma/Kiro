@@ -75,8 +75,10 @@ cd Kiro
 
 APKs are written to `KiroLauncher/build/outputs/apk/`.
 
-Release builds are signed with `KiroLauncher/kiro_launcher.jks`; provide the
-passwords through the `STORE_PASSWORD` and `KEY_PASSWORD` environment variables.
+Release builds are signed with the in-repo PKCS12 keystore `KiroLauncher/kiro_launcher.p12`
+(alias `kiro`), debug builds with `kiro_launcher_debug.p12` (alias `kiro-debug`). Passwords can
+be overridden with the `STORE_PASSWORD` / `KEY_PASSWORD` environment variables; otherwise the
+defaults in `KiroLauncher/gradle.properties` are used.
 Optional configuration (environment variables or `KiroLauncher/gradle.properties`):
 `OAUTH_CLIENT_ID` (Microsoft login), `CURSEFORGE_API_KEY` (CurseForge search) and
 `url_update_manifest` (in-app update source; leave empty to disable update checks).

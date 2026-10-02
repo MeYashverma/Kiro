@@ -42,22 +42,22 @@
 
 # The app keeps the upstream Java namespace (JNI symbol names + on-disk compatibility),
 # so these keep rules must use it verbatim.
--keep class com.movtery.zalithlauncher.bridge.** { *; }
--keep class com.movtery.zalithlauncher.utils.device.VulkanChecker {
+-keep class io.github.meyashverma.kiro.bridge.** { *; }
+-keep class io.github.meyashverma.kiro.utils.device.VulkanChecker {
     *;
 }
--keep class com.movtery.zalithlauncher.utils.device.VulkanCapabilities {
+-keep class io.github.meyashverma.kiro.utils.device.VulkanCapabilities {
     *;
 }
--keep interface com.movtery.zalithlauncher.utils.device.VulkanLogCallback {
+-keep interface io.github.meyashverma.kiro.utils.device.VulkanLogCallback {
     *;
 }
--keep class com.movtery.zalithlauncher.game.input.CriticalNativeTest {
+-keep class io.github.meyashverma.kiro.game.input.CriticalNativeTest {
     *;
 }
 
 # Hilt entry point / launcher application class
--keep class com.movtery.zalithlauncher.KiroApplication {
+-keep class io.github.meyashverma.kiro.KiroApplication {
     *;
 }
 

@@ -2,6 +2,15 @@ name: Kiro - Build APK
 
 on:
   workflow_dispatch:
+    inputs:
+      variant:
+        description: "Build variant"
+        required: true
+        default: "Release"
+        type: choice
+        options:
+          - Release
+          - Debug
   workflow_call:
     inputs:
       variant:
@@ -53,6 +62,43 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew KiroLauncher:assemble${{ inputs.variant }} -Darch=${{ matrix.arch }}
+
+
+      - name: Verify Kiro identity in the built APK
+        run: |
+          set -euo pipefail
+          VARIANT="${{ inputs.variant }}"
+          if [ "$VARIANT" = "Release" ]; then DIR=release; APPID=io.github.meyashverma.kiro;
+          else DIR=debug; APPID=io.github.meyashverma.kiro.debug; fi
+          APK=$(ls KiroLauncher/build/outputs/apk/$DIR/*.apk | head -1)
+          echo "Verifying $APK"
+          TMP=$(mktemp -d); unzip -q "$APK" -d "$TMP"
+
+          AAPT2=$(ls "$ANDROID_HOME"/build-tools/*/aapt2 2>/dev/null | sort -V | tail -1 || true)
+          if [ -n "${AAPT2:-}" ]; then
+            BADGING=$("$AAPT2" dump badging "$APK")
+            echo "$BADGING" | grep -q "package: name='$APPID'" || { echo "FAIL: unexpected package id"; exit 1; }
+            echo "$BADGING" | grep -qi "application-label:'Kiro" || { echo "FAIL: launcher label is not Kiro"; exit 1; }
+            echo "  manifest ok: $APPID / Kiro"
+          else
+            echo "  aapt2 not found; skipping badging checks"
+          fi
+
+          for d in "$TMP"/classes*.dex; do
+            grep -a -q "io/github/meyashverma/kiro" "$d" || { echo "FAIL: Kiro namespace missing from $d"; exit 1; }
+            if grep -a -q "com/movtery/zalithlauncher" "$d"; then echo "FAIL: upstream namespace still in $d"; exit 1; fi
+          done
+          echo "  dex ok: Kiro namespace only"
+
+          for jar in "$TMP"/assets/app_runtime/lwjgl/*/lwjgl-*-merged-modules.jar; do
+            LIST=$(unzip -l "$jar")
+            echo "$LIST" | grep -q "io/github/meyashverma/kiro/CursorRegistry.class" || { echo "FAIL: $jar was not rebuilt with the Kiro namespace"; exit 1; }
+            if echo "$LIST" | grep -q "com/movtery/zalithlauncher"; then echo "FAIL: $jar still ships the upstream namespace"; exit 1; fi
+          done
+          echo "  lwjgl runtime jars ok: rebuilt from current sources"
+
+          unzip -l "$APK" | grep -q "mipmap-xxxhdpi/ic_launcher" || { echo "FAIL: launcher icon missing"; exit 1; }
+          echo "VERIFIED: $APK"
 
       - name: Upload Kiro release APK for ${{ matrix.arch }}
         if: inputs.variant == 'Release'

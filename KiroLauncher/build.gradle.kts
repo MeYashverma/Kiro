@@ -15,7 +15,7 @@ plugins {
 
 // Upstream Java/Kotlin namespace, kept for JNI symbols, proguard keeps and
 // on-disk compatibility. The Android application id below is Kiro's own.
-val launcherNamespace = "com.movtery.zalithlauncher"
+val launcherNamespace = "io.github.meyashverma.kiro"
 val kiroApplicationId = "io.github.meyashverma.kiro"
 val launcherAPPName = project.findProperty("launcher_app_name") as? String ?: error("The \"launcher_app_name\" property is not set in gradle.properties.")
 val launcherName = project.findProperty("launcher_name") as? String ?: error("The \"launcher_name\" property is not set in gradle.properties.")
@@ -55,15 +55,17 @@ android {
 
     signingConfigs {
         create("releaseBuild") {
-            storeFile = file("kiro_launcher.jks")
-            storePassword = getKeyFromLocal("STORE_PASSWORD", ".store_password.txt")
-            keyAlias = "movtery_zalith"
-            keyPassword = getKeyFromLocal("KEY_PASSWORD", ".key_password.txt")
+            storeFile = file("kiro_launcher.p12")
+            storeType = "PKCS12"
+            storePassword = getKeyFromLocal("STORE_PASSWORD", ".store_password.txt", defaultStorePassword)
+            keyAlias = "kiro"
+            keyPassword = getKeyFromLocal("KEY_PASSWORD", ".key_password.txt", defaultKeyPassword)
         }
         create("debugBuild") {
-            storeFile = file("kiro_launcher_debug.jks")
+            storeFile = file("kiro_launcher_debug.p12")
+            storeType = "PKCS12"
             storePassword = defaultStorePassword
-            keyAlias = "movtery_zalith_debug"
+            keyAlias = "kiro-debug"
             keyPassword = defaultKeyPassword
         }
     }
@@ -151,6 +153,10 @@ androidComponents {
                 val variantName = variant.name.replaceFirstChar { it.uppercaseChar() }
                 afterEvaluate {
                     val task = tasks.named("merge${variantName}Assets").get() as MergeSourceSetFolders
+                    // The LWJGL runtime jars live in this module's assets but are produced by the
+                    // :LWJGL modules. Rebuild them first so the packaged jars always match the
+                    // current patched LWJGL sources (they embed the launcher's package name).
+                    task.dependsOn(":LWJGL:buildLwjgl")
                     task.inputs.property("lwjglArch", projectArch)
                     task.doLast {
                         val assetsDir = task.outputDir.get().asFile
