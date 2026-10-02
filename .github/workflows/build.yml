@@ -76,7 +76,7 @@ jobs:
           tail -n 40 "$LOG"
           # Surface the reason as annotations: they are readable through the API even when
           # Actions log storage is not reachable from the environment reviewing the build.
-          grep -nE "FAILURE:|What went wrong|> Task .* FAILED|Execution failed for task|Caused by:|error:|Keystore|keystore|password|apksigner|Missing class|R8|Lint|warning: " "$LOG" \
+          grep -nE "FAILURE:|What went wrong|Reason:|> Task .* FAILED|Execution failed for task|Caused by:|error:|Keystore|keystore|password|apksigner|Missing class|R8|Lint|warning: " "$LOG" \
             | tail -n 10 | while IFS= read -r line; do
                 echo "::error title=gradle-diag::${line:0:900}"
               done

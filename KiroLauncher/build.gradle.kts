@@ -163,7 +163,8 @@ androidComponents {
                     // needs the same ordering, otherwise Gradle rejects the build as an implicit
                     // dependency between ':LWJGL:lwjgl-*:jar' and those tasks.
                     tasks.configureEach {
-                        if (name.contains("Assets") || name.contains("Lint")) {
+                        val taskName = name.lowercase()
+                        if (taskName.contains("assets") || taskName.contains("lint")) {
                             dependsOn(":LWJGL:buildLwjgl")
                         }
                     }
