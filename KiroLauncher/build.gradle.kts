@@ -58,7 +58,7 @@ fun keystorePassword(
     fallback: String
 ): String {
     val candidates = linkedMapOf(
-        "$$envKey" to System.getenv(envKey),
+        "env $envKey" to System.getenv(envKey),
         fileName to File(rootDir, fileName).takeIf { it.canRead() }?.readText()?.trim(),
         "gradle.properties" to fallback
     ).filterValues { !it.isNullOrBlank() }

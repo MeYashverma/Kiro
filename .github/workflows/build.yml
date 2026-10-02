@@ -91,9 +91,14 @@ jobs:
           tail -n 40 "$LOG"
           # Surface the reason as annotations: they are readable through the API even when
           # Actions log storage is not reachable from the environment reviewing the build.
-          grep -nE "FAILURE:|What went wrong|Reason:|> Task .* FAILED|Execution failed for task|Caused by:|error:|Keystore|keystore|password|apksigner|Missing class|R8|Lint|warning: " "$LOG" \
+          grep -nE "FAILURE:|What went wrong|Reason:|> Task .* FAILED|Execution failed for task|Caused by:|error:|e: file|Keystore|keystore|password|apksigner|Missing class|R8|Lint|warning: " "$LOG" \
             | tail -n 10 | while IFS= read -r line; do
                 echo "::error title=gradle-diag::${line:0:900}"
+              done
+          # The whole "What went wrong" section verbatim, so configuration-time failures are readable.
+          awk '/What went wrong/{n=NR} {line[NR]=$0} END{if (n) for (i=n; i<=NR && i<n+14; i++) print line[i]}' "$LOG" \
+            | while IFS= read -r line; do
+                [ -n "$line" ] && echo "::error title=gradle-error::${line:0:900}"
               done
 
       - name: Verify Kiro launcher identity (package, label, icon)
