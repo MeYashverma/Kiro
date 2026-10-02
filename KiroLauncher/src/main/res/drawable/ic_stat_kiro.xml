@@ -5,12 +5,12 @@
     android:viewportHeight="24">
     <!-- Kiro status-bar glyph: isometric explorer block -->
     <path
-        android:pathData="M12.00,6.48L17.52,9.24L12.00,12.00L6.48,9.24ZM6.48,9.24L12.00,12.00L12.00,17.52L6.48,14.76ZM12.00,6.48L6.48,9.24L6.48,14.76L12.00,12.00Z"
+        android:pathData="M2.64,7.32L12.00,12.00L12.00,21.36L2.64,16.68ZM21.36,7.32L12.00,12.00L12.00,21.36L21.36,16.68Z"
         android:strokeColor="#FFFFFFFF"
-        android:strokeWidth="1.6"
+        android:strokeWidth="1.9"
         android:strokeLineJoin="round"
         android:fillColor="#00000000" />
     <path
-        android:pathData="M6.48,9.24L12.00,12.00L12.00,13.21L6.48,10.45Z"
+        android:pathData="M12.00,2.64L21.36,7.32L12.00,12.00L2.64,7.32Z"
         android:fillColor="#FFFFFFFF" />
 </vector>

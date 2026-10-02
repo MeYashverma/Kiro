@@ -57,8 +57,8 @@ def _faces(unit, cx, cy, x0, y0, x1, y1, z0, z1):
            iso(x1, y1, z1, unit, cx, cy), iso(x0, y1, z1, unit, cx, cy)]
     left = [iso(x0, y1, z1, unit, cx, cy), iso(x1, y1, z1, unit, cx, cy),
             iso(x1, y1, z0, unit, cx, cy), iso(x0, y1, z0, unit, cx, cy)]
-    right = [iso(x0, y0, z1, unit, cx, cy), iso(x0, y1, z1, unit, cx, cy),
-             iso(x0, y1, z0, unit, cx, cy), iso(x0, y0, z0, unit, cx, cy)]
+    right = [iso(x1, y0, z1, unit, cx, cy), iso(x1, y1, z1, unit, cx, cy),
+             iso(x1, y1, z0, unit, cx, cy), iso(x1, y0, z0, unit, cx, cy)]
     return top, left, right
 
 
@@ -79,8 +79,8 @@ def draw_mark(draw, unit, cx, cy, flat=None):
     draw.polygon(right, fill=EARTH_RIGHT)
     draw.polygon([iso(0, 1, 1, unit, cx, cy), iso(1, 1, 1, unit, cx, cy),
                   iso(1, 1, grass, unit, cx, cy), iso(0, 1, grass, unit, cx, cy)], fill=GRASS_LEFT)
-    draw.polygon([iso(0, 0, 1, unit, cx, cy), iso(0, 1, 1, unit, cx, cy),
-                  iso(0, 1, grass, unit, cx, cy), iso(0, 0, grass, unit, cx, cy)], fill=GRASS_RIGHT)
+    draw.polygon([iso(1, 0, 1, unit, cx, cy), iso(1, 1, 1, unit, cx, cy),
+                  iso(1, 1, grass, unit, cx, cy), iso(1, 0, grass, unit, cx, cy)], fill=GRASS_RIGHT)
     draw.polygon(top, fill=GRASS_TOP)
 
 
@@ -109,7 +109,7 @@ def glow(img, color=CYAN, alpha=120, spread=0.62, blur=0.14, cx=0.5, cy=0.42):
     return img
 
 
-def mark(img, ratio, cx=0.5, cy=0.46, flat=None):
+def mark(img, ratio, cx=0.5, cy=0.47, flat=None):
     """Composite the mark onto img (working in img's own pixel space)."""
     w = img.size[0]
     layer = Image.new("RGBA", img.size, TRANSPARENT)
@@ -242,7 +242,7 @@ def _vector(polys, viewport=432, size_dp=108):
 '''
 
 
-def mark_polys(viewport=432, ratio=0.46, flat=None, cy_offset=0.03):
+def mark_polys(viewport=432, ratio=0.46, flat=None, cy_offset=-0.03):
     """The Kiro mark, expressed as Android <vector> paths (same geometry as draw_mark)."""
     unit = viewport * ratio
     cx = viewport / 2
@@ -256,8 +256,8 @@ def mark_polys(viewport=432, ratio=0.46, flat=None, cy_offset=0.03):
         (right, "#FF54371F"),
         ([iso(0, 1, 1, unit, cx, cy), iso(1, 1, 1, unit, cx, cy),
           iso(1, 1, grass, unit, cx, cy), iso(0, 1, grass, unit, cx, cy)], "#FF42A648"),
-        ([iso(0, 0, 1, unit, cx, cy), iso(0, 1, 1, unit, cx, cy),
-          iso(0, 1, grass, unit, cx, cy), iso(0, 0, grass, unit, cx, cy)], "#FF2C8234"),
+        ([iso(1, 0, 1, unit, cx, cy), iso(1, 1, 1, unit, cx, cy),
+          iso(1, 1, grass, unit, cx, cy), iso(1, 0, grass, unit, cx, cy)], "#FF2C8234"),
         (top, "#FF62D064"),
     ]
     return polys
@@ -272,18 +272,19 @@ def monochrome_vector(viewport=432, ratio=0.46):
 
 
 def notification_vector(viewport=24):
-    """Status-bar icon: monochrome isometric cube outline, tinted by the system."""
-    unit = viewport * 0.46
+    """Status-bar glyph: solid cap plus outlined body, tinted by the system.
+
+    Reads as the Kiro block at 16 dp while staying inside the ~2 dp margin the
+    status bar expects.
+    """
+    unit = viewport * 0.78
     cx, cy = viewport / 2, viewport / 2
     top, left, right = _faces(unit, cx, cy, 0, 0, 1, 1, 0, 1)
-    grass = 1.0 - GRASS_CAP
 
     def path(points):
         return "".join(f"{'M' if i == 0 else 'L'}{p[0]:.2f},{p[1]:.2f}" for i, p in enumerate(points)) + "Z"
 
-    outline = path(top) + path(left) + path(right)
-    cap = path([iso(0, 1, 1, unit, cx, cy), iso(1, 1, 1, unit, cx, cy),
-                iso(1, 1, grass, unit, cx, cy), iso(0, 1, grass, unit, cx, cy)])
+    body = path(left) + path(right)
     return f'''<vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
@@ -291,13 +292,13 @@ def notification_vector(viewport=24):
     android:viewportHeight="{viewport}">
     <!-- Kiro status-bar glyph: isometric explorer block -->
     <path
-        android:pathData="{outline}"
+        android:pathData="{path(left)}{path(right)}"
         android:strokeColor="#FFFFFFFF"
-        android:strokeWidth="1.6"
+        android:strokeWidth="1.9"
         android:strokeLineJoin="round"
         android:fillColor="#00000000" />
     <path
-        android:pathData="{cap}"
+        android:pathData="{path(top)}"
         android:fillColor="#FFFFFFFF" />
 </vector>
 '''
