@@ -2,6 +2,7 @@ import com.android.build.api.variant.FilterConfiguration.FilterType.ABI
 import com.android.build.api.variant.impl.VariantOutputImpl
 import com.android.build.gradle.tasks.MergeSourceSetFolders
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.security.KeyStore
 
 plugins {
     alias(libs.plugins.android.application)
@@ -65,8 +66,7 @@ fun keystorePassword(
 
     candidates.forEach { (source, password) ->
         val opened = runCatching {
-            java.security.KeyStore.getInstance(storeType)
-                .load(store.inputStream(), password!!.toCharArray())
+            KeyStore.getInstance(storeType).load(store.inputStream(), password!!.toCharArray())
         }.isSuccess
         if (opened) {
             logger.lifecycle("KIRO: opened ${store.name} with the password from $source")
