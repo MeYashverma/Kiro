@@ -1,7 +1,16 @@
-name: Build APK
+name: Kiro - Build APK
 
 on:
   workflow_dispatch:
+    inputs:
+      variant:
+        description: "Build variant"
+        required: true
+        default: "Release"
+        type: choice
+        options:
+          - Release
+          - Debug
   workflow_call:
     inputs:
       variant:
@@ -49,31 +58,127 @@ jobs:
         with:
           add-job-summary: "on-failure"
 
-      - name: Build APK for ${{ matrix.arch }}
+      - name: Verify signing keystore
+        run: |
+          set -uo pipefail
+          KS=KiroLauncher/kiro_launcher.p12
+          PW=$(sed -n 's/^default_store_password=//p' KiroLauncher/gradle.properties)
+          echo "STORE_PASSWORD env set: $([ -n "${STORE_PASSWORD:-}" ] && echo yes || echo no)"
+          echo "KEY_PASSWORD env set: $([ -n "${KEY_PASSWORD:-}" ] && echo yes || echo no)"
+          if keytool -list -keystore "$KS" -storepass "$PW" -storetype PKCS12 > /tmp/ks.txt 2>&1; then
+            echo "keystore opens with the configured default password"
+            grep -E "keystore contains|^[a-zA-Z0-9._-]+," /tmp/ks.txt | head -5
+          else
+            echo "::error title=keystore::$(tail -n 3 /tmp/ks.txt | tr '\n' ' ' | head -c 800)"
+            exit 1
+          fi
+
+      - name: Kiro - Build APK for ${{ matrix.arch }}
+        id: assemble
         run: |
           chmod +x gradlew
-          ./gradlew ZalithLauncher:assemble${{ inputs.variant }} -Darch=${{ matrix.arch }}
+          set -o pipefail
+          ./gradlew KiroLauncher:assemble${{ inputs.variant }} -Darch=${{ matrix.arch }} --console=plain 2>&1 \
+            | tee "$RUNNER_TEMP/gradle-${{ matrix.arch }}.log"
 
-      - name: Upload Release APK for ${{ matrix.arch }}
+
+
+      - name: Report build failure
+        if: failure() && steps.assemble.outcome == 'failure'
+        run: |
+          LOG="$RUNNER_TEMP/gradle-${{ matrix.arch }}.log"
+          echo "=== last 40 lines ==="
+          tail -n 40 "$LOG"
+          # Surface the reason as annotations: they are readable through the API even when
+          # Actions log storage is not reachable from the environment reviewing the build.
+          grep -nE "FAILURE:|What went wrong|Reason:|> Task .* FAILED|Execution failed for task|Caused by:|error:|e: file|Keystore|keystore|password|apksigner|Missing class|R8|Lint|warning: " "$LOG" \
+            | tail -n 10 | while IFS= read -r line; do
+                echo "::error title=gradle-diag::${line:0:900}"
+              done
+          # The whole "What went wrong" section verbatim, so configuration-time failures are readable.
+          awk '/What went wrong/{n=NR} {line[NR]=$0} END{if (n) for (i=n; i<=NR && i<n+14; i++) print line[i]}' "$LOG" \
+            | while IFS= read -r line; do
+                [ -n "$line" ] && echo "::error title=gradle-error::${line:0:900}"
+              done
+
+      - name: Verify Kiro launcher identity (package, label, icon)
+        run: |
+          set -euo pipefail
+          VARIANT="${{ inputs.variant }}"
+          if [ "$VARIANT" = "Release" ]; then DIR=release; APPID=io.github.meyashverma.kiro;
+          else DIR=debug; APPID=io.github.meyashverma.kiro.debug; fi
+          APK=$(ls KiroLauncher/build/outputs/apk/$DIR/*.apk | head -1)
+          echo "APK: $APK"
+          echo "APK=$APK" >> "$GITHUB_ENV"
+          AAPT2=$(ls "$ANDROID_HOME"/build-tools/*/aapt2 2>/dev/null | sort -V | tail -1 || true)
+          if [ -n "${AAPT2:-}" ]; then
+            BADGING=$("$AAPT2" dump badging "$APK")
+            echo "$BADGING" | grep -q "package: name='$APPID'" || { echo "::error title=Kiro verify::unexpected application id (expected $APPID)"; exit 1; }
+            echo "$BADGING" | grep -qi "application-label:'Kiro" || { echo "::error title=Kiro verify::launcher label is not Kiro"; exit 1; }
+            echo "$BADGING" | grep -qE "application-icon" || { echo "::error title=Kiro verify::no application icon declared"; exit 1; }
+            ICONS=$(echo "$BADGING" | grep -cE "application-icon")
+            echo "  package id, label and $ICONS icon densities ok"
+          else
+            echo "::error title=Kiro verify::aapt2 unavailable, cannot verify the launcher identity"
+            exit 1
+          fi
+
+      - name: Verify Kiro namespace in the dex
+        run: |
+          set -euo pipefail
+          TMP=$(mktemp -d); unzip -q "$APK" -d "$TMP"
+          FOUND=0
+          for d in "$TMP"/classes*.dex; do
+            echo "  checking $(basename "$d")"
+            if grep -a -q "com/movtery/zalithlauncher" "$d"; then
+              echo "::error title=Kiro verify::upstream namespace still present in $(basename "$d")"
+              exit 1
+            fi
+            grep -a -q "io/github/meyashverma/kiro" "$d" && FOUND=1
+          done
+          [ "$FOUND" = 1 ] || { echo "::error title=Kiro verify::Kiro namespace missing from all dex files"; exit 1; }
+          echo "  dex ok: Kiro namespace only"
+
+      - name: Verify LWJGL runtime jars were rebuilt from current sources
+        run: |
+          set -euo pipefail
+          TMP=$(mktemp -d); unzip -q "$APK" -d "$TMP"
+          COUNT=0
+          for jar in "$TMP"/assets/app_runtime/lwjgl/*/lwjgl-*-merged-modules.jar; do
+            [ -e "$jar" ] || continue
+            COUNT=$((COUNT+1))
+            LIST=$(unzip -l "$jar")
+            echo "  checking $(basename "$jar")"
+            echo "$LIST" | grep -q "io/github/meyashverma/kiro/CursorRegistry.class" || {
+              echo "::error title=Kiro verify::$(basename "$jar") was not rebuilt with the Kiro namespace"; exit 1; }
+            if echo "$LIST" | grep -q "com/movtery/zalithlauncher"; then
+              echo "::error title=Kiro verify::$(basename "$jar") still contains the upstream namespace"
+              exit 1
+            fi
+          done
+          [ "$COUNT" -gt 0 ] || { echo "::error title=Kiro verify::no LWJGL runtime jars found in the APK"; exit 1; }
+          echo "  $COUNT LWJGL runtime jar(s) rebuilt and verified"
+
+      - name: Upload Kiro release APK for ${{ matrix.arch }}
         if: inputs.variant == 'Release'
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
-          name: release apk (${{ matrix.arch }})
-          path: ZalithLauncher/build/outputs/apk/release/*.apk
+          name: kiro-release-apk (${{ matrix.arch }})
+          path: KiroLauncher/build/outputs/apk/release/*.apk
 
       - name: Upload Release Mapping for ${{ matrix.arch }}
         if: inputs.variant == 'Release'
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
-          name: mapping (${{ matrix.arch }})
-          path: ZalithLauncher/build/outputs/mapping/release/mapping.txt
+          name: kiro-release-mapping (${{ matrix.arch }})
+          path: KiroLauncher/build/outputs/mapping/release/mapping.txt
 
-      - name: Upload Debug APK for ${{ matrix.arch }}
+      - name: Upload Kiro debug APK for ${{ matrix.arch }}
         if: inputs.variant == 'Debug'
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
-          name: debug apk (${{ matrix.arch }})
-          path: ZalithLauncher/build/outputs/apk/debug/*.apk
+          name: kiro-debug-apk (${{ matrix.arch }})
+          path: KiroLauncher/build/outputs/apk/debug/*.apk

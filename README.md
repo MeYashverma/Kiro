@@ -1,26 +1,41 @@
-# Zalith Launcher 2
-![Downloads](https://img.shields.io/github/downloads/ZalithLauncher/ZalithLauncher2/total)
-[![Sponsor](https://img.shields.io/badge/sponsor-30363D?logo=GitHub-Sponsors)](https://afdian.com/a/MovTery)
+# Kiro Launcher
+
+<p align="center">
+  <img src=".github/assets/kiro_banner.png" alt="Kiro Launcher" width="720">
+</p>
+
+<p align="center">
+  <a href="https://github.com/MeYashverma/Kiro/releases"><img src="https://img.shields.io/github/v/release/MeYashverma/Kiro?label=release" alt="Release"></a>
+  <a href="https://github.com/MeYashverma/Kiro/actions/workflows/push_ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/MeYashverma/Kiro/push_ci.yml?label=build" alt="Build"></a>
+  <a href="https://github.com/MeYashverma/Kiro/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0-blue" alt="License: GPL-3.0"></a>
+  <img src="https://img.shields.io/badge/Android-8.0%2B-3ddc84?logo=android&logoColor=white" alt="Android 8.0+">
+</p>
 
 [English](README_EN_US.md) | [繁體中文](README_ZH_TW.md)
 
+**Kiro Launcher**（简称 **Kiro**）是一款面向 **Android 设备** 的 [Minecraft: Java Edition](https://www.minecraft.net/) 启动器。
+它使用 [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/tree/v3_openjdk/app_pojavlauncher/src/main/jni) 作为启动核心，界面基于 **Jetpack Compose** 与 **Material Design 3** 构建，
+拥有独立的 Kiro 视觉识别体系（配色、图标、启动画面与应用内品牌）。
 
 > [!IMPORTANT]
-> 该项目与 [ZalithLauncher](https://github.com/ZalithLauncher/ZalithLauncher) 属于两个完全不同的项目  
+> Kiro 是 **[Zalith Launcher 2](https://github.com/ZalithLauncher/ZalithLauncher2)** 的**非官方修改版（分叉）**。
+> 启动核心、渲染器框架与绝大部分代码均由 Zalith Launcher 2 的作者 **MovTery** 及贡献者开发，遵循 GNU GPL v3 协议。
+> Kiro 与 Zalith Launcher 项目**没有隶属、赞助或背书关系**。
+> Kiro 不是从零开始编写的项目，也不声称拥有上游代码的著作权。
 
-**Zalith Launcher 2** 是一个全新设计、面向 **Android 设备** 的 [Minecraft: Java Edition](https://www.minecraft.net/) 启动器。项目使用 [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/tree/v3_openjdk/app_pojavlauncher/src/main/jni) 作为启动核心，采用 **Jetpack Compose** 与 **Material Design 3** 构建现代化 UI 体验。  
-我们目前正在搭建自己的官方网站 [zalithlauncher.cn](https://zalithlauncher.cn)  
-此外，我们已注意到有第三方使用“Zalith Launcher”名称搭建了一个看似官方的网站。请注意：**该网站并非我们创建**，其通过冒用名义并植入广告牟利。我们对此类行为**不参与、不认可、不信任**。  
-请务必提高警惕，**谨防个人隐私信息泄露**！
+## ✨ 主要功能
 
-
-## 🌐 语言与翻译支持
-
-我们正在使用 Weblate 平台翻译 Zalith Launcher 2，欢迎您前往我们的 [Weblate 项目](https://hosted.weblate.org/projects/zalithlauncher2) 参与翻译！  
-感谢每一位语言贡献者的支持，让 Zalith Launcher 2 更加多语、更加全球化！
-
-
-
+| 功能 | 说明 |
+| --- | --- |
+| 游戏安装与管理 | 原版游戏下载与安装、多版本隔离、版本导出与整合包导入 |
+| 模组加载器 | Forge、NeoForge、Fabric、Quilt、Legacy Fabric、OptiFine、Cleanroom |
+| 模组 / 资源包 / 光影 | 浏览、安装、更新、启用与禁用，支持 Modrinth 与 CurseForge 检索 |
+| Java 运行时 | 内置 JRE 8 / 17 / 21 / 25，支持自定义运行时的导入与选择 |
+| 渲染器 | Vulkan、Zink/Kopper、GL4ES、NG-GL4ES、LTW 等，兼容 FCL 与上游渲染器插件 |
+| 操作方式 | 触控布局编辑器、手柄映射、陀螺仪、鼠标指针与触控板模式 |
+| 账户 | 微软正版登录、离线账户、第三方认证服务器、皮肤与披风管理 |
+| 多人游戏 | 服务器列表与 Terracotta 联机支持 |
+| 文件管理 | 内置文件管理器、压缩包处理与存档备份 |
 
 ## 📦 构建方式（开发者）
 
@@ -28,34 +43,94 @@
 
 ### 环境要求
 
-* Android Studio Bumblebee 以上
+* Android Studio（支持 AGP 9 / Gradle 9.5）
 * Android SDK：
-    * **最低 API**：26
-    * **目标 API**：35
-* JDK 11
+    * **最低 API**：26（Android 8.0）
+    * **目标 API**：34
+* JDK 21（构建 Gradle 时使用）
+
+### 支持的架构
+
+Kiro 支持并会为以下 ABI 分别打包：
+
+`arm64-v8a`、`armeabi-v7a`、`x86`、`x86_64`，以及包含全部架构的 `all` 包。
+
+构建时可通过 `-Darch=` 指定单一架构，以减小安装包体积：
+
+```bash
+# 全部架构（默认）
+./gradlew KiroLauncher:assembleDebug
+
+# 仅 arm64
+./gradlew KiroLauncher:assembleDebug -Darch=arm64
+```
 
 ### 构建步骤
 
 ```bash
-git clone git@github.com:ZalithLauncher/ZalithLauncher2.git
-# 使用 Android Studio 打开项目并进行构建
+git clone https://github.com/MeYashverma/Kiro.git
+cd Kiro
+# 使用 Android Studio 打开项目并构建，或使用命令行：
+./gradlew KiroLauncher:assembleDebug
 ```
 
+生成的安装包位于 `KiroLauncher/build/outputs/apk/`。
 
+发布版使用仓库内的 PKCS12 密钥库 `KiroLauncher/kiro_launcher.p12`（别名 `kiro`）签名，
+调试版使用 `kiro_launcher_debug.p12`（别名 `kiro-debug`）；口令可通过环境变量
+`STORE_PASSWORD`、`KEY_PASSWORD` 覆盖，未设置时回退到 `KiroLauncher/gradle.properties` 中的默认值。
 
+可选配置（均通过环境变量或 `KiroLauncher/gradle.properties` 提供）：
+`OAUTH_CLIENT_ID`（微软登录）、`CURSEFORGE_API_KEY`（CurseForge 检索）、
+`url_update_manifest`（应用内更新源，留空则关闭更新检查）。
+
+## 🔁 从 Zalith Launcher 2 迁移
+
+Kiro 使用自己的 Android 应用 ID（`io.github.meyashverma.kiro`，调试版本为
+`…kiro.debug`）；Java/Kotlin 命名空间沿用上游，以保证 JNI 与插件兼容。
+由于 Android 把不同的应用 ID 视为不同的应用：
+
+* Kiro 与 Zalith Launcher 2 **可以并存安装**，不会改动或删除对方的任何数据。
+* 实例、账户与设置保存在 Kiro 自己的存储中。如需迁移已有内容，可在
+  **设置 → 游戏目录** 中指向同一个游戏目录，或在版本菜单中导出/导入实例。
+* 已经存在于磁盘上的内部文件名与键名（实例状态文件 `zalith-game.cfg`、
+  插件元数据键 `zalithRendererPlugin`、环境变量 `ZALITH_VERSION_CODE` 等）
+  刻意保持不变，以便已有实例、插件与模组继续可用。
+
+## 🎨 品牌与视觉资源
+
+<p align="center">
+  <img src=".github/assets/kiro_wordmark.png" alt="Kiro" width="260">
+</p>
+
+Kiro 的图标、启动画面与文档图形由 `tools/generate_kiro_icons.py` 统一生成，
+修改配色或几何后重新运行该脚本即可同步全部资源：
+
+```bash
+python3 tools/generate_kiro_icons.py
+```
 
 ## 📜 License
 
-本项目代码遵循 **[GPL-3.0 license](LICENSE)** 开源协议。
+本项目遵循 **[GPL-3.0 license](LICENSE)** 开源协议。
+Kiro 作为 Zalith Launcher 2 的修改版本发布，保留了上游的著作权声明与协议条款。
 
-### 附加条款 (依据 GPLv3 开源协议第七条)  
+### 附加条款（依据 GPLv3 第七条）
 
-1. 当你分发该程序的修改版本时，你必须以合理方式修改该程序的名称或版本号，以示其与原始版本不同。(依据 [GPLv3, 7(c)](https://github.com/ZalithLauncher/ZalithLauncher2/blob/969827b/LICENSE#L372-L374))
-   - 修改版本 **不得在名称中包含原程序名称 “ZalithLauncher” 或其缩写 “ZL”，也不得使用与官方名称相近、可能导致混淆的名称**。
-   - 所有修改版本 **必须在程序启动页面或主界面中以明显方式标注其为“非官方修改版”**。
-   - 该程序的应用名称可在 [gradle.properties](./ZalithLauncher/gradle.properties) 中修改。
+1. 当你分发该程序的修改版本时，必须以合理方式修改名称或版本号，以示其与原始版本不同。
+2. 你不得移除该程序所显示的版权声明（依据 GPLv3 7(b)）。
 
-2. 你不得移除该程序所显示的版权声明。(依据 [GPLv3, 7(b)](https://github.com/ZalithLauncher/ZalithLauncher2/blob/969827b/LICENSE#L368-L370))
+### 上游项目与鸣谢
+
+Kiro 的存在完全建立在下列开源项目之上：
+
+* [Zalith Launcher 2](https://github.com/ZalithLauncher/ZalithLauncher2) — 本项目直接上游，GPL-3.0
+* [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher) — 启动后端，LGPL-3.0
+* [Fold Craft Launcher](https://github.com/FCL-Team/FoldCraftLauncher)、[Hello Minecraft! Launcher](https://github.com/HMCL-dev/HMCL) — 部分实现参考与代码
+* [BMCLAPI](https://bmclapi2.bangbang93.com/)、[MCIM](https://www.mcimirror.top/) — 下载镜像
+* 以及所有翻译者与问题反馈者
+
+完整的第三方组件清单可见应用内 **设置 → 关于 → 鸣谢 / 额外引入的依赖项目**。
 
 ## 引用开源项目
 

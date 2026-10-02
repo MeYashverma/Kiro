@@ -1,67 +1,128 @@
-# Zalith Launcher 2
-![Downloads](https://img.shields.io/github/downloads/ZalithLauncher/ZalithLauncher2/total)
-[![Sponsor](https://img.shields.io/badge/sponsor-30363D?logo=GitHub-Sponsors)](https://afdian.com/a/MovTery)
+# Kiro Launcher
 
-[English](README_EN_US.md) | [简体中文](README.md)
+<p align="center">
+  <img src=".github/assets/kiro_banner.png" alt="Kiro Launcher" width="720">
+</p>
 
+<p align="center">
+  <a href="https://github.com/MeYashverma/Kiro/releases"><img src="https://img.shields.io/github/v/release/MeYashverma/Kiro?label=release" alt="Release"></a>
+  <a href="https://github.com/MeYashverma/Kiro/actions/workflows/push_ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/MeYashverma/Kiro/push_ci.yml?label=build" alt="Build"></a>
+  <a href="https://github.com/MeYashverma/Kiro/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0-blue" alt="License: GPL-3.0"></a>
+  <img src="https://img.shields.io/badge/Android-8.0%2B-3ddc84?logo=android&logoColor=white" alt="Android 8.0+">
+</p>
+
+[简体中文](README.md) | [English](README_EN_US.md)
+
+**Kiro Launcher**（簡稱 **Kiro**）是一款面向 **Android 裝置** 的 [Minecraft: Java Edition](https://www.minecraft.net/) 啟動器。
+它以 [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/tree/v3_openjdk/app_pojavlauncher/src/main/jni) 作為啟動核心，
+介面以 **Jetpack Compose** 與 **Material Design 3** 打造，並擁有獨立的 Kiro 視覺識別（配色、圖示、啟動畫面與應用內品牌）。
 
 > [!IMPORTANT]
-> 該專案與 [ZalithLauncher](https://github.com/ZalithLauncher/ZalithLauncher) 屬於兩個完全不同的專案  
+> Kiro 是 **[Zalith Launcher 2](https://github.com/ZalithLauncher/ZalithLauncher2)** 的**非官方修改版（分支）**。
+> 啟動核心、渲染器框架與絕大多數程式碼皆由 Zalith Launcher 2 的作者 **MovTery** 與貢獻者開發，採用 GNU GPL v3 授權。
+> Kiro 與 Zalith Launcher 專案**沒有隸屬、贊助或背書關係**。
+> Kiro 並非從零開始撰寫，也不主張擁有上游程式碼的著作權。
 
-**Zalith Launcher 2** 是一個全新設計、面向 **Android 裝置** 的 [Minecraft: Java Edition](https://www.minecraft.net/) 啟動器。專案使用 [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/tree/v3_openjdk/app_pojavlauncher/src/main/jni) 作為啟動核心，採用 **Jetpack Compose** 與 **Material Design 3** 構建現代化 UI 體驗。  
-我們目前正在搭建自己的官方網站 [zalithlauncher.cn](https://zalithlauncher.cn)  
-此外，我們已注意到有第三方使用「Zalith Launcher」名稱搭建了一個看似官方的網站。請注意：**該網站並非我們創建**，其透過冒用名義並植入廣告牟利。我們對此類行為**不參與、不認可、不信任**。  
-請務必提高警覺，**謹防個人隱私資訊洩露**！
+## ✨ 主要功能
 
+| 功能 | 說明 |
+| --- | --- |
+| 遊戲安裝與管理 | 原版遊戲下載安裝、多版本隔離、版本匯出與整合包匯入 |
+| 模組載入器 | Forge、NeoForge、Fabric、Quilt、Legacy Fabric、OptiFine、Cleanroom |
+| 模組 / 資源包 / 光影 | 瀏覽、安裝、更新、啟用與停用，支援 Modrinth 與 CurseForge 檢索 |
+| Java 執行環境 | 內建 JRE 8 / 17 / 21 / 25，支援自訂執行環境匯入 |
+| 渲染器 | Vulkan、Zink/Kopper、GL4ES、NG-GL4ES、LTW，並相容 FCL 與上游渲染器外掛 |
+| 操作方式 | 觸控佈局編輯器、手把對應、陀螺儀、滑鼠與觸控板模式 |
+| 帳號 | 微軟登入、離線帳號、第三方驗證伺服器、外觀與披風管理 |
+| 多人遊戲 | 伺服器清單管理與 Terracotta 連線支援 |
+| 檔案管理 | 內建檔案管理器、壓縮檔處理與存檔備份 |
 
+## 📦 建置方式（開發者）
 
-## 🌐 語言與翻譯支援
+### 環境需求
 
-我們正在使用 Weblate 平台翻譯 Zalith Launcher 2，歡迎您前往我們的 [Weblate 專案](https://hosted.weblate.org/projects/zalithlauncher2) 參與翻譯！  
-感謝每一位語言貢獻者的支持，讓 Zalith Launcher 2 更加多語化、更加國際化！
+* Android Studio（支援 AGP 9 / Gradle 9.5）
+* Android SDK：**最低 API 26**（Android 8.0）、**目標 API 34**
+* 建置 Gradle 需 JDK 21
 
+### 支援的架構
 
-
-
-
-## 📦 構建方式（開發者）
-
-> 以下內容適用於希望參與開發或自行構建應用的使用者。
-
-### 環境要求
-
-* Android Studio Bumblebee 以上
-* Android SDK：
-    * **最低 API**：26
-    * **目標 API**：35
-* JDK 11
-
-### 構建步驟
+Kiro 針對以下 ABI 分別打包：`arm64-v8a`、`armeabi-v7a`、`x86`、`x86_64`，
+以及包含全部架構的 `all` 套件。可透過 `-Darch=` 只建置單一架構：
 
 ```bash
-git clone git@github.com:ZalithLauncher/ZalithLauncher2.git
-# 使用 Android Studio 開啟專案並進行構建
+# 全部架構（預設）
+./gradlew KiroLauncher:assembleDebug
+
+# 僅 arm64
+./gradlew KiroLauncher:assembleDebug -Darch=arm64
 ```
 
+### 建置步驟
 
+```bash
+git clone https://github.com/MeYashverma/Kiro.git
+cd Kiro
+./gradlew KiroLauncher:assembleDebug
+```
 
+產物位於 `KiroLauncher/build/outputs/apk/`。
+
+發行版使用倉庫內的 PKCS12 金鑰庫 `KiroLauncher/kiro_launcher.p12`（別名 `kiro`）簽署，
+除錯版使用 `kiro_launcher_debug.p12`（別名 `kiro-debug`）；密碼可用環境變數
+`STORE_PASSWORD`、`KEY_PASSWORD` 覆寫，未設定時回退到 `KiroLauncher/gradle.properties` 的預設值。選用設定（環境變數或
+`KiroLauncher/gradle.properties`）：`OAUTH_CLIENT_ID`、`CURSEFORGE_API_KEY`、
+`url_update_manifest`（應用內更新來源，留空即停用更新檢查）。
+
+## 🔁 從 Zalith Launcher 2 遷移
+
+Kiro 使用自己的 Android 應用 ID（`io.github.meyashverma.kiro`，除錯版本为
+`…kiro.debug`）；Java/Kotlin 命名空间沿用上游，以確保 JNI 与外掛相容。
+由于 Android 把不同的應用 ID 視為不同的应用：
+
+* Kiro 与 Zalith Launcher 2 **可以並存安装**，不会改動或刪除对方的任何資料。
+* 實例、帳號与設定保存在 Kiro 自己的儲存中。如需遷移已有内容，可在
+  **設定 → 遊戲目錄** 中指向同一个遊戲目錄，或在版本選單中匯出/匯入實例。
+* 已经存在于磁盘上的内部檔案名与鍵名（實例状态檔案 `zalith-game.cfg`、
+  外掛元資料键 `zalithRendererPlugin`、环境变量 `ZALITH_VERSION_CODE` 等）
+  刻意保持不变，以便已有實例、外掛与模組继续可用。
+
+## 🎨 品牌與視覺資源
+
+<p align="center">
+  <img src=".github/assets/kiro_wordmark.png" alt="Kiro" width="260">
+</p>
+
+Kiro 的圖示、啟動畫面與文件圖形皆由同一支腳本產生，
+調整配色或幾何後重新執行即可同步全部資源：
+
+```bash
+python3 tools/generate_kiro_icons.py
+```
 
 ## 📜 License
 
-本專案程式碼遵循 **[GPL-3.0 license](LICENSE)** 開源協議。
+本專案採用 **[GPL-3.0 license](LICENSE)** 授權。
+Kiro 以 Zalith Launcher 2 的修改版本形式發佈，保留上游的著作權聲明與授權條款。
 
-### 附加條款（依據 GPLv3 開源授權條款第七條）
+### 附加條款（依 GPLv3 第七條）
 
-1. 當你分發本程式的修改版本時，必須以合理方式修改該程式的名稱或版本號，以區別於原始版本。（依據 [GPLv3, 7(c)](https://github.com/ZalithLauncher/ZalithLauncher2/blob/969827b/LICENSE#L372-L374)）
-    - 修改版本 **不得在名稱中包含原程式名稱「ZalithLauncher」或其縮寫「ZL」，亦不得使用與官方名稱相近、可能造成混淆的名稱**。
-    - 所有修改版本 **必須在程式啟動畫面或主介面中以明顯方式標示其為「非官方修改版」**。
-    - 程式的應用名稱可於 [gradle.properties](./ZalithLauncher/gradle.properties) 中進行修改。
+1. 分發修改版本時，必須以合理方式修改名稱或版本號，以示與原始版本不同。
+2. 不得移除程式所顯示的著作權聲明（依 GPLv3 7(b)）。
 
-2. 你不得移除本程式所顯示的版權聲明。（依據 [GPLv3, 7(b)](https://github.com/ZalithLauncher/ZalithLauncher2/blob/969827b/LICENSE#L368-L370)）
+### 上游專案與鳴謝
 
-## 引用開源專案
-  
-本軟體使用以下開源函式庫:
+* [Zalith Launcher 2](https://github.com/ZalithLauncher/ZalithLauncher2) — 直接上游，GPL-3.0
+* [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher) — 啟動後端，LGPL-3.0
+* [Fold Craft Launcher](https://github.com/FCL-Team/FoldCraftLauncher)、[Hello Minecraft! Launcher](https://github.com/HMCL-dev/HMCL) — 部分實作參考與程式碼
+* [BMCLAPI](https://bmclapi2.bangbang93.com/)、[MCIM](https://www.mcimirror.top/) — 下載鏡像
+* 所有參與翻譯、回報問題與測試的貢獻者
+
+完整的第三方元件清單可見應用內 **設定 → 關於 → 鳴謝 / 額外引入的依賴項目**。
+
+## 引用开源项目
+
+本软件使用以下开源库:
 
 | Library                               | Copyright                                                                                                     | License              | Official Link                                                                     |
 |---------------------------------------|---------------------------------------------------------------------------------------------------------------|----------------------|-----------------------------------------------------------------------------------|

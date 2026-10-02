@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Kiro status-bar glyph: isometric explorer block -->
+    <path
+        android:pathData="M2.64,7.32L12.00,12.00L12.00,21.36L2.64,16.68ZM21.36,7.32L12.00,12.00L12.00,21.36L21.36,16.68Z"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.9"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M12.00,2.64L21.36,7.32L12.00,12.00L2.64,7.32Z"
+        android:fillColor="#FFFFFFFF" />
+</vector>

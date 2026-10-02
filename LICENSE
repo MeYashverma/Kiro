@@ -631,8 +631,17 @@ to attach them to the start of each source file to most effectively
 state the exclusion of warranty; and each file should have at least
 the "copyright" line and a pointer to where the full notice is found.
 
-    Zalith Launcher - A Minecraft: Java Edition Launcher for Android
-    Copyright (C) 2025 MovTery
+    Kiro Launcher - An Android launcher for Minecraft: Java Edition
+    Copyright (C) 2026 MeYashverma and contributors
+
+    Kiro Launcher is a modified version of Zalith Launcher 2
+    (https://github.com/ZalithLauncher/ZalithLauncher2)
+    Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+    released under the GNU General Public License, version 3 or later.
+    The original copyright notice and licence terms are retained below and in
+    every source file of this distribution, as required by GPLv3 sections
+    5(a) and 7(b). Kiro Launcher is not affiliated with the Zalith Launcher
+    project.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -652,7 +661,8 @@ Also add information on how to contact you by electronic and paper mail.
   If the program does terminal interaction, make it output a short
 notice like this when it starts in an interactive mode:
 
-    Zalith Launcher  Copyright (C) 2025 MovTery
+    Kiro Launcher  Copyright (C) 2026 MeYashverma and contributors
+    Zalith Launcher 2  Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
     This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
     This is free software, and you are welcome to redistribute it
     under certain conditions; type `show c' for details.
