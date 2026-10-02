@@ -115,13 +115,13 @@ jobs:
             BADGING=$("$AAPT2" dump badging "$APK")
             echo "$BADGING" | grep -q "package: name='$APPID'" || { echo "::error title=Kiro verify::unexpected application id (expected $APPID)"; exit 1; }
             echo "$BADGING" | grep -qi "application-label:'Kiro" || { echo "::error title=Kiro verify::launcher label is not Kiro"; exit 1; }
-            echo "$BADGING" | grep -q "application-icon" || { echo "::error title=Kiro verify::no application icon declared"; exit 1; }
-            echo "  package id, label and icon ok"
+            echo "$BADGING" | grep -qE "application-icon" || { echo "::error title=Kiro verify::no application icon declared"; exit 1; }
+            ICONS=$(echo "$BADGING" | grep -cE "application-icon")
+            echo "  package id, label and $ICONS icon densities ok"
           else
-            echo "::warning title=Kiro verify::aapt2 unavailable, badging checks skipped"
+            echo "::error title=Kiro verify::aapt2 unavailable, cannot verify the launcher identity"
+            exit 1
           fi
-          unzip -l "$APK" | grep -qE "mipmap[^/]*/ic_launcher" || { echo "::error title=Kiro verify::launcher icon resource missing from APK"; exit 1; }
-          echo "  launcher icon resources present"
 
       - name: Verify Kiro namespace in the dex
         run: |
