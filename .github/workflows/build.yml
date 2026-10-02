@@ -59,10 +59,27 @@ jobs:
           add-job-summary: "on-failure"
 
       - name: Kiro - Build APK for ${{ matrix.arch }}
+        id: assemble
         run: |
           chmod +x gradlew
-          ./gradlew KiroLauncher:assemble${{ inputs.variant }} -Darch=${{ matrix.arch }}
+          set -o pipefail
+          ./gradlew KiroLauncher:assemble${{ inputs.variant }} -Darch=${{ matrix.arch }} --console=plain 2>&1 \
+            | tee "$RUNNER_TEMP/gradle-${{ matrix.arch }}.log"
 
+
+
+      - name: Report build failure
+        if: failure() && steps.assemble.outcome == 'failure'
+        run: |
+          LOG="$RUNNER_TEMP/gradle-${{ matrix.arch }}.log"
+          echo "=== last 40 lines ==="
+          tail -n 40 "$LOG"
+          # Surface the reason as annotations: they are readable through the API even when
+          # Actions log storage is not reachable from the environment reviewing the build.
+          grep -nE "FAILURE:|What went wrong|> Task .* FAILED|Execution failed for task|Caused by:|error:|Keystore|keystore|password|apksigner|Missing class|R8|Lint|warning: " "$LOG" \
+            | tail -n 10 | while IFS= read -r line; do
+                echo "::error title=gradle-diag::${line:0:900}"
+              done
 
       - name: Verify Kiro launcher identity (package, label, icon)
         run: |
