@@ -64,41 +64,63 @@ jobs:
           ./gradlew KiroLauncher:assemble${{ inputs.variant }} -Darch=${{ matrix.arch }}
 
 
-      - name: Verify Kiro identity in the built APK
+      - name: Verify Kiro launcher identity (package, label, icon)
         run: |
           set -euo pipefail
           VARIANT="${{ inputs.variant }}"
           if [ "$VARIANT" = "Release" ]; then DIR=release; APPID=io.github.meyashverma.kiro;
           else DIR=debug; APPID=io.github.meyashverma.kiro.debug; fi
           APK=$(ls KiroLauncher/build/outputs/apk/$DIR/*.apk | head -1)
-          echo "Verifying $APK"
-          TMP=$(mktemp -d); unzip -q "$APK" -d "$TMP"
-
+          echo "APK: $APK"
+          echo "APK=$APK" >> "$GITHUB_ENV"
           AAPT2=$(ls "$ANDROID_HOME"/build-tools/*/aapt2 2>/dev/null | sort -V | tail -1 || true)
           if [ -n "${AAPT2:-}" ]; then
             BADGING=$("$AAPT2" dump badging "$APK")
-            echo "$BADGING" | grep -q "package: name='$APPID'" || { echo "FAIL: unexpected package id"; exit 1; }
-            echo "$BADGING" | grep -qi "application-label:'Kiro" || { echo "FAIL: launcher label is not Kiro"; exit 1; }
-            echo "  manifest ok: $APPID / Kiro"
+            echo "$BADGING" | grep -q "package: name='$APPID'" || { echo "::error title=Kiro verify::unexpected application id (expected $APPID)"; exit 1; }
+            echo "$BADGING" | grep -qi "application-label:'Kiro" || { echo "::error title=Kiro verify::launcher label is not Kiro"; exit 1; }
+            echo "$BADGING" | grep -q "application-icon" || { echo "::error title=Kiro verify::no application icon declared"; exit 1; }
+            echo "  package id, label and icon ok"
           else
-            echo "  aapt2 not found; skipping badging checks"
+            echo "::warning title=Kiro verify::aapt2 unavailable, badging checks skipped"
           fi
+          unzip -l "$APK" | grep -qE "mipmap[^/]*/ic_launcher" || { echo "::error title=Kiro verify::launcher icon resource missing from APK"; exit 1; }
+          echo "  launcher icon resources present"
 
+      - name: Verify Kiro namespace in the dex
+        run: |
+          set -euo pipefail
+          TMP=$(mktemp -d); unzip -q "$APK" -d "$TMP"
+          FOUND=0
           for d in "$TMP"/classes*.dex; do
-            grep -a -q "io/github/meyashverma/kiro" "$d" || { echo "FAIL: Kiro namespace missing from $d"; exit 1; }
-            if grep -a -q "com/movtery/zalithlauncher" "$d"; then echo "FAIL: upstream namespace still in $d"; exit 1; fi
+            echo "  checking $(basename "$d")"
+            if grep -a -q "com/movtery/zalithlauncher" "$d"; then
+              echo "::error title=Kiro verify::upstream namespace still present in $(basename "$d")"
+              exit 1
+            fi
+            grep -a -q "io/github/meyashverma/kiro" "$d" && FOUND=1
           done
+          [ "$FOUND" = 1 ] || { echo "::error title=Kiro verify::Kiro namespace missing from all dex files"; exit 1; }
           echo "  dex ok: Kiro namespace only"
 
+      - name: Verify LWJGL runtime jars were rebuilt from current sources
+        run: |
+          set -euo pipefail
+          TMP=$(mktemp -d); unzip -q "$APK" -d "$TMP"
+          COUNT=0
           for jar in "$TMP"/assets/app_runtime/lwjgl/*/lwjgl-*-merged-modules.jar; do
+            [ -e "$jar" ] || continue
+            COUNT=$((COUNT+1))
             LIST=$(unzip -l "$jar")
-            echo "$LIST" | grep -q "io/github/meyashverma/kiro/CursorRegistry.class" || { echo "FAIL: $jar was not rebuilt with the Kiro namespace"; exit 1; }
-            if echo "$LIST" | grep -q "com/movtery/zalithlauncher"; then echo "FAIL: $jar still ships the upstream namespace"; exit 1; fi
+            echo "  checking $(basename "$jar")"
+            echo "$LIST" | grep -q "io/github/meyashverma/kiro/CursorRegistry.class" || {
+              echo "::error title=Kiro verify::$(basename "$jar") was not rebuilt with the Kiro namespace"; exit 1; }
+            if echo "$LIST" | grep -q "com/movtery/zalithlauncher"; then
+              echo "::error title=Kiro verify::$(basename "$jar") still contains the upstream namespace"
+              exit 1
+            fi
           done
-          echo "  lwjgl runtime jars ok: rebuilt from current sources"
-
-          unzip -l "$APK" | grep -q "mipmap-xxxhdpi/ic_launcher" || { echo "FAIL: launcher icon missing"; exit 1; }
-          echo "VERIFIED: $APK"
+          [ "$COUNT" -gt 0 ] || { echo "::error title=Kiro verify::no LWJGL runtime jars found in the APK"; exit 1; }
+          echo "  $COUNT LWJGL runtime jar(s) rebuilt and verified"
 
       - name: Upload Kiro release APK for ${{ matrix.arch }}
         if: inputs.variant == 'Release'
