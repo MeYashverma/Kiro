@@ -58,6 +58,21 @@ jobs:
         with:
           add-job-summary: "on-failure"
 
+      - name: Verify signing keystore
+        run: |
+          set -uo pipefail
+          KS=KiroLauncher/kiro_launcher.p12
+          PW=$(sed -n 's/^default_store_password=//p' KiroLauncher/gradle.properties)
+          echo "STORE_PASSWORD env set: $([ -n "${STORE_PASSWORD:-}" ] && echo yes || echo no)"
+          echo "KEY_PASSWORD env set: $([ -n "${KEY_PASSWORD:-}" ] && echo yes || echo no)"
+          if keytool -list -keystore "$KS" -storepass "$PW" -storetype PKCS12 > /tmp/ks.txt 2>&1; then
+            echo "keystore opens with the configured default password"
+            grep -E "keystore contains|^[a-zA-Z0-9._-]+," /tmp/ks.txt | head -5
+          else
+            echo "::error title=keystore::$(tail -n 3 /tmp/ks.txt | tr '\n' ' ' | head -c 800)"
+            exit 1
+          fi
+
       - name: Kiro - Build APK for ${{ matrix.arch }}
         id: assemble
         run: |

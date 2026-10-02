@@ -45,6 +45,37 @@ fun getKeyFromLocal(envKey: String, fileName: String? = null, default: String? =
     }
 }
 
+/**
+ * Picks the first password that actually opens the committed keystore: environment variable,
+ * optional local password file, then the value from gradle.properties. The keystores ship in
+ * this repository, so signing must not depend on CI secrets being present or current.
+ */
+fun keystorePassword(
+    envKey: String,
+    fileName: String,
+    store: File,
+    storeType: String,
+    fallback: String
+): String {
+    val candidates = linkedMapOf(
+        "$$envKey" to System.getenv(envKey),
+        fileName to File(rootDir, fileName).takeIf { it.canRead() }?.readText()?.trim(),
+        "gradle.properties" to fallback
+    ).filterValues { !it.isNullOrBlank() }
+
+    candidates.forEach { (source, password) ->
+        val opened = runCatching {
+            java.security.KeyStore.getInstance(storeType)
+                .load(store.inputStream(), password!!.toCharArray())
+        }.isSuccess
+        if (opened) {
+            logger.lifecycle("KIRO: opened ${store.name} with the password from $source")
+            return password!!
+        }
+    }
+    throw GradleException("KIRO: ${store.name} could not be opened with any configured password")
+}
+
 android {
     namespace = launcherNamespace
     compileSdk {
@@ -55,18 +86,20 @@ android {
 
     signingConfigs {
         create("releaseBuild") {
-            storeFile = file("kiro_launcher.p12")
+            val store = file("kiro_launcher.p12")
+            storeFile = store
             storeType = "PKCS12"
-            storePassword = getKeyFromLocal("STORE_PASSWORD", ".store_password.txt", defaultStorePassword)
+            storePassword = keystorePassword("STORE_PASSWORD", ".store_password.txt", store, "PKCS12", defaultStorePassword)
             keyAlias = "kiro"
-            keyPassword = getKeyFromLocal("KEY_PASSWORD", ".key_password.txt", defaultKeyPassword)
+            keyPassword = keystorePassword("KEY_PASSWORD", ".key_password.txt", store, "PKCS12", defaultKeyPassword)
         }
         create("debugBuild") {
-            storeFile = file("kiro_launcher_debug.p12")
+            val store = file("kiro_launcher_debug.p12")
+            storeFile = store
             storeType = "PKCS12"
-            storePassword = defaultStorePassword
+            storePassword = keystorePassword("STORE_PASSWORD", ".store_password.txt", store, "PKCS12", defaultStorePassword)
             keyAlias = "kiro-debug"
-            keyPassword = defaultKeyPassword
+            keyPassword = keystorePassword("KEY_PASSWORD", ".key_password.txt", store, "PKCS12", defaultKeyPassword)
         }
     }
 
