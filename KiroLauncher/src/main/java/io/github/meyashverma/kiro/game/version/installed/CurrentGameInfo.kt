@@ -56,7 +56,7 @@ data class CurrentGameInfo(
 }
 
 // 游戏目录内的状态文件：保留旧文件名，避免升级后丢失用户已选择的版本与收藏夹
-// 磁盘格式名：与游戏目录内已有实例（包括 ZL2 创建的）保持一致，切勿改名。
+// 磁盘格式名：与游戏目录内已有实例（包括由上游启动器创建的）保持一致，切勿改名。
 private fun getInfoFile(gameHome: String) = File(gameHome, "zalith-game.cfg")
 
 /**
