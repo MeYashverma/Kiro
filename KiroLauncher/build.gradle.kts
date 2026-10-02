@@ -158,6 +158,15 @@ androidComponents {
                     // current patched LWJGL sources (they embed the launcher's package name).
                     task.dependsOn(":LWJGL:buildLwjgl")
                     task.inputs.property("lwjglArch", projectArch)
+
+                    // Every other consumer of the same source assets (lint's report model, packaging)
+                    // needs the same ordering, otherwise Gradle rejects the build as an implicit
+                    // dependency between ':LWJGL:lwjgl-*:jar' and those tasks.
+                    tasks.configureEach {
+                        if (name.contains("Assets") || name.contains("Lint")) {
+                            dependsOn(":LWJGL:buildLwjgl")
+                        }
+                    }
                     task.doLast {
                         val assetsDir = task.outputDir.get().asFile
                         val tag = "JREAssetsCleanup"
